@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Produit — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+        <div class="flex items-center gap-3 text-xs sm:text-sm">
+          <a href="products.html" class="hover:text-primary transition-colors">Boutique</a>
+          <a
+            href="cart.html"
+            class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <span>Panier</span>
+            <span
+              id="nav-cart-count"
+              class="inline-flex items-center justify-center min-w-[16px] h-4 text-[10px] bg-primary text-dark rounded-full px-1 leading-none"
+            ></span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="pt-24 pb-16 max-w-4xl mx-auto px-4">
+      <a href="javascript:history.back()" class="text-xs text-white/60 hover:text-primary">&larr; Retour</a>
+
+      <section id="product-detail" class="mt-6 grid md:grid-cols-2 gap-8"></section>
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Validation commande — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+      </nav>
+    </header>
+
+    <main class="pt-24 pb-16 max-w-4xl mx-auto px-4">
+      <h1 class="text-xl sm:text-2xl font-semibold mb-1">Validation de la commande</h1>
+      <p class="text-xs text-white/60 mb-6">
+        Vérifiez vos informations. Votre commande sera envoyée directement sur WhatsApp.
+      </p>
+
+      <section
+        id="checkout-summary"
+        class="rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl p-4 flex flex-col gap-4 text-sm"
+      ></section>
+
+      <button
+        id="confirm-order-btn"
+        class="mt-4 w-full px-4 py-2.5 rounded-full bg-gradient-to-r from-primary to-gold text-dark text-sm font-semibold shadow-glow hover:opacity-90 transition"
+      >
+        Confirmer et ouvrir WhatsApp
+      </button>
+      <p id="checkout-message" class="text-xs text-red-300 mt-2"></p>
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+

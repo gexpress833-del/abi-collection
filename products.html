@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boutique — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+        <div class="flex items-center gap-3 text-xs sm:text-sm">
+          <a href="products.html" class="text-primary">Boutique</a>
+          <a href="account.html" class="hover:text-primary transition-colors hidden sm:inline">Mon compte</a>
+          <a
+            href="cart.html"
+            class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <span>Panier</span>
+            <span
+              id="nav-cart-count"
+              class="inline-flex items-center justify-center min-w-[16px] h-4 text-[10px] bg-primary text-dark rounded-full px-1 leading-none"
+            ></span>
+          </a>
+          <a href="login.html" id="nav-login-btn" class="px-3 py-1.5 rounded-full bg-primary text-dark text-xs font-semibold shadow-glow hover:bg-primary/90 transition-colors">
+            Se connecter
+          </a>
+          <button id="nav-user-chip" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors">
+            <span class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
+            <span id="nav-user-name" class="max-w-[90px] truncate"></span>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="pt-24 pb-16 max-w-6xl mx-auto px-4">
+      <header class="mb-6 space-y-4">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-semibold mb-1">Boutique Abi-Collection</h1>
+            <p class="text-xs text-white/60">
+              Parfums, lunettes, montres, bagues, gourmettes, foulards et déodorants dans une harmonie futuriste.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Barre de recherche -->
+        <div class="relative">
+          <input
+            type="text"
+            id="products-search"
+            placeholder="Rechercher un produit..."
+            class="w-full input-glass pl-10 pr-4 py-2.5 text-sm"
+          />
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">🔍</span>
+          <button
+            id="products-search-clear"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 text-sm hidden"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- Filtres et tri -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex gap-2 text-[11px] flex-wrap">
+            <button class="chip-filter active" data-category="all">Tous</button>
+            <button class="chip-filter" data-category="parfum">Parfums</button>
+            <button class="chip-filter" data-category="lunette">Lunettes</button>
+            <button class="chip-filter" data-category="montre">Montres</button>
+            <button class="chip-filter" data-category="bague">Bagues</button>
+            <button class="chip-filter" data-category="gourmette">Gourmettes</button>
+            <button class="chip-filter" data-category="foulard">Foulards</button>
+            <button class="chip-filter" data-category="deodorant">Déodorants</button>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <label class="text-[11px] text-white/70">Trier par:</label>
+            <select id="products-sort" class="input-glass px-3 py-1.5 text-[11px]">
+              <option value="featured">Populaires</option>
+              <option value="name-asc">Nom (A-Z)</option>
+              <option value="name-desc">Nom (Z-A)</option>
+              <option value="price-asc">Prix (Croissant)</option>
+              <option value="price-desc">Prix (Décroissant)</option>
+              <option value="newest">Plus récents</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <div id="products-count" class="text-xs text-white/60 mb-4"></div>
+      <section id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs"></section>
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+

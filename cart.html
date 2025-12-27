@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panier — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+        <div class="flex items-center gap-3 text-xs sm:text-sm">
+          <a href="products.html" class="hover:text-primary transition-colors hidden sm:inline">Boutique</a>
+          <a href="login.html" id="nav-login-btn" class="px-3 py-1.5 rounded-full bg-primary text-dark text-xs font-semibold shadow-glow hover:bg-primary/90 transition-colors">
+            Se connecter
+          </a>
+          <button id="nav-user-chip" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors">
+            <span class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
+            <span id="nav-user-name" class="max-w-[90px] truncate"></span>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="pt-24 pb-16 max-w-4xl mx-auto px-4">
+      <h1 class="text-xl sm:text-2xl font-semibold mb-1">Votre panier</h1>
+      <p class="text-xs text-white/60 mb-6">
+        Vérifiez vos articles avant de valider votre commande via WhatsApp.
+      </p>
+
+      <section id="cart-items" class="space-y-3 mb-6"></section>
+
+      <div class="rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl p-4 flex flex-col gap-3 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="text-white/70">Total</span>
+          <span id="cart-total" class="font-semibold text-primary text-base"></span>
+        </div>
+        <button
+          id="checkout-btn"
+          class="mt-2 w-full px-4 py-2.5 rounded-full bg-gradient-to-r from-primary to-gold text-dark text-sm font-semibold shadow-glow hover:opacity-90 transition"
+        >
+          Valider la commande
+        </button>
+        <p id="cart-message" class="text-xs text-red-300 mt-1"></p>
+      </div>
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+

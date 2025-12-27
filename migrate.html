@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Migration vers Supabase — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      tailwind = window.tailwind || {};
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C9A961",
+              gold: "#B8860B",
+              dark: "#050816",
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <div class="max-w-2xl mx-auto px-4 py-16">
+      <div class="glass-card p-6 space-y-6">
+        <div>
+          <h1 class="text-2xl font-semibold mb-2">Migration vers Supabase</h1>
+          <p class="text-sm text-white/70">
+            Cette page va migrer toutes tes données LocalStorage vers Supabase.
+          </p>
+        </div>
+
+        <div id="migration-status" class="space-y-4">
+          <div class="flex items-center gap-3">
+            <div id="status-icon" class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <span class="text-lg">⏳</span>
+            </div>
+            <div>
+              <p id="status-text" class="font-semibold">Prêt à migrer</p>
+              <p id="status-detail" class="text-xs text-white/60">Clique sur le bouton pour commencer</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="migration-results" class="hidden space-y-3">
+          <div class="border-t border-white/10 pt-4">
+            <h3 class="text-sm font-semibold mb-3">Résultats de la migration</h3>
+            <div id="results-content" class="space-y-2 text-xs"></div>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            id="start-migration-btn"
+            class="flex-1 px-4 py-3 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition"
+          >
+            Commencer la migration
+          </button>
+          <a
+            href="index.html"
+            class="px-4 py-3 rounded-full border border-white/15 bg-white/5 text-sm text-white/80 hover:bg-white/10"
+          >
+            Retour
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script>
+      (function () {
+        const startBtn = document.getElementById("start-migration-btn");
+        const statusIcon = document.getElementById("status-icon");
+        const statusText = document.getElementById("status-text");
+        const statusDetail = document.getElementById("status-detail");
+        const resultsDiv = document.getElementById("migration-results");
+        const resultsContent = document.getElementById("results-content");
+
+        let supabaseClient = null;
+        let migrated = 0;
+        let errors = 0;
+
+        function updateStatus(icon, text, detail, color = "primary") {
+          statusIcon.innerHTML = icon;
+          statusIcon.className = `w-8 h-8 rounded-full bg-${color}/20 flex items-center justify-center`;
+          statusText.textContent = text;
+          statusDetail.textContent = detail;
+        }
+
+        function addResult(type, message) {
+          const div = document.createElement("div");
+          div.className = `p-2 rounded-lg ${
+            type === "success" ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"
+          }`;
+          div.textContent = message;
+          resultsContent.appendChild(div);
+        }
+
+        // Fonction pour normaliser les catégories (identique à app.js)
+        function normalizeCategoryForMigration(category) {
+          if (!category) return null;
+          const cat = String(category).toLowerCase().trim();
+          const categoryMap = {
+            parfums: "parfum",
+            parfum: "parfum",
+            lunettes: "lunette",
+            lunette: "lunette",
+            montres: "montre",
+            montre: "montre",
+            bijoux: "bague",
+            bague: "bague",
+            bagues: "bague",
+            gourmettes: "gourmette",
+            gourmette: "gourmette",
+            foulards: "foulard",
+            foulard: "foulard",
+            deodorants: "deodorant",
+            deodorant: "deodorant",
+            hygiene: "deodorant",
+            vetements: "foulard",
+            accessoires: "lunette",
+          };
+          return categoryMap[cat] || cat.replace(/s$/, ""); // Retirer le 's' final si présent
+        }
+
+        async function migrateProducts() {
+          updateStatus("📦", "Migration des produits...", "En cours...");
+          const products = JSON.parse(localStorage.getItem("products") || "[]");
+          let migrated = 0;
+          let errors = 0;
+
+          // Récupérer toutes les catégories existantes dans Supabase
+          const { data: existingCategories } = await supabaseClient
+            .from("categories")
+            .select("name");
+
+          const validCategories = new Set(
+            (existingCategories || []).map((c) => c.name)
+          );
+
+          for (const product of products) {
+            try {
+              // Normaliser la catégorie
+              let categoryName = normalizeCategoryForMigration(product.category);
+              
+              // Vérifier que la catégorie existe, sinon la créer
+              if (categoryName && !validCategories.has(categoryName)) {
+                try {
+                  const { error: catError } = await supabaseClient
+                    .from("categories")
+                    .insert({
+                      name: categoryName,
+                      display_name: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
+                      is_default: false,
+                    });
+                  if (!catError) {
+                    validCategories.add(categoryName);
+                    addResult("success", `✓ Catégorie "${categoryName}" créée automatiquement`);
+                  }
+                } catch (e) {
+                  // Ignorer si la catégorie existe déjà (conflit)
+                  if (e.code !== "23505") {
+                    console.warn("Erreur création catégorie:", e);
+                  }
+                }
+              }
+
+              const productData = {
+                name: product.name,
+                description: product.description || "",
+                price: product.price || 0,
+                category: categoryName || null, // Utiliser la catégorie normalisée
+                image: product.image || null,
+                stock: product.stock !== undefined ? product.stock : null,
+                featured: product.featured || false,
+              };
+
+              const { data, error } = await supabaseClient.from("products").insert(productData).select().single();
+
+              if (error) {
+                if (error.code === "23505") {
+                  // Produit existe déjà, essayer de mettre à jour
+                  const { error: updateError } = await supabaseClient
+                    .from("products")
+                    .update(productData)
+                    .eq("name", product.name);
+                  if (updateError) throw updateError;
+                } else {
+                  throw error;
+                }
+              }
+              migrated++;
+              addResult("success", `✓ Produit "${product.name}" migré`);
+            } catch (e) {
+              errors++;
+              addResult("error", `✗ Erreur pour "${product.name}": ${e.message}`);
+            }
+          }
+
+          return { migrated, errors };
+        }
+
+        async function migrateCategories() {
+          updateStatus("📁", "Migration des catégories...", "En cours...");
+          const categories = JSON.parse(localStorage.getItem("categories") || "[]");
+          let migrated = 0;
+          let errors = 0;
+
+          for (const category of categories) {
+            try {
+              const categoryData = {
+                name: category.name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-"),
+                display_name: category.displayName || category.name,
+                is_default: category.isDefault || false,
+              };
+
+              const { error } = await supabaseClient.from("categories").insert(categoryData);
+
+              if (error && error.code !== "23505") {
+                throw error;
+              }
+              migrated++;
+              addResult("success", `✓ Catégorie "${category.displayName || category.name}" migrée`);
+            } catch (e) {
+              if (e.code !== "23505") {
+                errors++;
+                addResult("error", `✗ Erreur pour "${category.name}": ${e.message}`);
+              }
+            }
+          }
+
+          return { migrated, errors };
+        }
+
+        async function migrateOrders() {
+          updateStatus("📋", "Migration des commandes...", "En cours...");
+          const orders = JSON.parse(localStorage.getItem("orders") || "[]");
+          let migrated = 0;
+          let errors = 0;
+
+          for (const order of orders) {
+            try {
+              // Convertir les timestamps JavaScript en format PostgreSQL
+              function convertTimestamp(ts) {
+                if (!ts) return null;
+                // Si c'est un nombre (timestamp en millisecondes), convertir en ISO string
+                if (typeof ts === 'number') {
+                  return new Date(ts).toISOString();
+                }
+                // Si c'est déjà une string, essayer de la parser
+                if (typeof ts === 'string') {
+                  const date = new Date(ts);
+                  if (!isNaN(date.getTime())) {
+                    return date.toISOString();
+                  }
+                }
+                return null;
+              }
+
+              const orderData = {
+                user_id: order.userId || null,
+                client_name: order.clientName || "",
+                phone: order.phone || "",
+                address: order.address || "",
+                total: order.total || 0,
+                status: order.status || "en attente",
+                payment_status: order.paymentStatus || "non payé",
+                payment_method: order.paymentMethod || null,
+                payment_reference: order.paymentReference || null,
+                paid_amount: order.paidAmount || null,
+                paid_at: convertTimestamp(order.paidAt),
+                created_at: convertTimestamp(order.createdAt) || new Date().toISOString(),
+              };
+
+              const { data: orderResult, error: orderError } = await supabaseClient
+                .from("orders")
+                .insert(orderData)
+                .select()
+                .single();
+
+              if (orderError) throw orderError;
+
+              if (order.items && order.items.length > 0) {
+                // Pour les produits, on doit trouver l'ID UUID depuis Supabase
+                // car item.id peut être un ID LocalStorage (p_xxx) ou un nombre simple
+                const orderItems = await Promise.all(
+                  order.items.map(async (item) => {
+                    let productId = null;
+                    
+                    // Vérifier si item.id est un UUID valide
+                    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                    if (item.id && uuidRegex.test(String(item.id))) {
+                      // C'est déjà un UUID, l'utiliser
+                      productId = item.id;
+                    } else {
+                      // Ce n'est pas un UUID, chercher le produit par nom
+                      const { data: productData, error: productError } = await supabaseClient
+                        .from("products")
+                        .select("id")
+                        .eq("name", item.name)
+                        .limit(1)
+                        .maybeSingle();
+                      
+                      if (productData && productData.id) {
+                        productId = productData.id;
+                      } else {
+                        // Produit non trouvé, on ne peut pas créer l'article de commande
+                        throw new Error(`Produit "${item.name}" non trouvé dans Supabase`);
+                      }
+                    }
+                    
+                    return {
+                      order_id: orderResult.id,
+                      product_id: productId,
+                      product_name: item.name,
+                      quantity: item.quantity,
+                      price: item.price,
+                      total: item.total,
+                    };
+                  })
+                );
+
+                const { error: itemsError } = await supabaseClient.from("order_items").insert(orderItems);
+                if (itemsError) throw itemsError;
+              }
+
+              migrated++;
+              addResult("success", `✓ Commande #${order.id.substring(0, 8)} migrée`);
+            } catch (e) {
+              errors++;
+              addResult("error", `✗ Erreur pour la commande "${order.id}": ${e.message}`);
+            }
+          }
+
+          return { migrated, errors };
+        }
+
+        startBtn.addEventListener("click", async function () {
+          startBtn.disabled = true;
+          startBtn.textContent = "Migration en cours...";
+          resultsDiv.classList.remove("hidden");
+          resultsContent.innerHTML = "";
+
+          // Vérifier la connexion Supabase
+          // Essayer plusieurs façons de récupérer le client Supabase
+          if (window.supabaseClient) {
+            supabaseClient = window.supabaseClient;
+          } else if (window.SupabaseIntegration && window.SupabaseIntegration.supabase) {
+            supabaseClient = window.SupabaseIntegration.supabase;
+          } else if (window.supabase && typeof window.supabase.createClient === 'function') {
+            // Créer le client depuis la config
+            supabaseClient = window.supabase.createClient(
+              "https://ulfprhnyhrsoqggkhhdj.supabase.co",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVsZnByaG55aHJzb3FnZ2toaGRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY3ODgzNjcsImV4cCI6MjA4MjM2NDM2N30.VC___nORowaUZKttzXBmscH1JMvIGVAHJmZ9QadYrk8"
+            );
+          }
+
+          if (!supabaseClient) {
+            updateStatus("❌", "Erreur", "Supabase n'est pas configuré correctement", "red");
+            addResult("error", "Vérifie que supabase-config.js est bien configuré et que les scripts sont chargés");
+            startBtn.disabled = false;
+            startBtn.textContent = "Réessayer";
+            return;
+          }
+
+          // Tester la connexion
+          try {
+            const { error: testError } = await supabaseClient.from("products").select("count").limit(1);
+            if (testError) {
+              throw new Error(testError.message);
+            }
+          } catch (e) {
+            updateStatus("❌", "Erreur de connexion", e.message, "red");
+            addResult("error", `Erreur: ${e.message}`);
+            addResult("error", "Vérifie que les tables sont créées dans Supabase (exécute supabase-schema.sql)");
+            startBtn.disabled = false;
+            startBtn.textContent = "Réessayer";
+            return;
+          }
+
+          try {
+            // Migrer d'abord les catégories (nécessaires pour les produits)
+            const categoriesResult = await migrateCategories();
+            addResult("success", `📁 Catégories: ${categoriesResult.migrated} migrées, ${categoriesResult.errors} erreurs\n`);
+
+            // Ensuite migrer les produits (qui dépendent des catégories)
+            const productsResult = await migrateProducts();
+            addResult("success", `\n📦 Produits: ${productsResult.migrated} migrés, ${productsResult.errors} erreurs\n`);
+
+            // Enfin migrer les commandes (qui dépendent des produits)
+            const ordersResult = await migrateOrders();
+            addResult("success", `📋 Commandes: ${ordersResult.migrated} migrées, ${ordersResult.errors} erreurs\n`);
+
+            updateStatus("✅", "Migration terminée !", "Toutes les données ont été migrées", "emerald");
+            startBtn.textContent = "Migration terminée";
+            startBtn.classList.add("opacity-50");
+
+            // Faire défiler jusqu'aux résultats
+            resultsDiv.scrollIntoView({ behavior: "smooth" });
+          } catch (e) {
+            updateStatus("❌", "Erreur", e.message, "red");
+            addResult("error", `Erreur générale: ${e.message}`);
+            startBtn.disabled = false;
+            startBtn.textContent = "Réessayer";
+          }
+        });
+
+        // Vérifier l'état au chargement
+        function checkSupabaseStatus() {
+          // Attendre un peu que Supabase soit initialisé
+          setTimeout(() => {
+            if (window.supabaseClient) {
+              updateStatus("✅", "Supabase configuré", "Prêt à migrer", "emerald");
+              startBtn.disabled = false;
+            } else if (window.SupabaseIntegration && window.SupabaseIntegration.isConfigured()) {
+              updateStatus("✅", "Supabase configuré", "Prêt à migrer", "emerald");
+              startBtn.disabled = false;
+            } else if (window.supabase && typeof window.supabase.createClient === 'function') {
+              // Supabase est chargé, on peut créer le client
+              updateStatus("✅", "Supabase détecté", "Prêt à migrer", "emerald");
+              startBtn.disabled = false;
+            } else {
+              updateStatus("⚠️", "Supabase non configuré", "Configure d'abord supabase-config.js", "amber");
+              startBtn.disabled = true;
+            }
+          }, 1000);
+        }
+
+        checkSupabaseStatus();
+      })();
+    </script>
+  </body>
+</html>
+

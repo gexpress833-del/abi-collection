@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon compte — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      tailwind = window.tailwind || {};
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C9A961",
+              gold: "#B8860B",
+              dark: "#050816",
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+        <div class="flex items-center gap-3 text-xs sm:text-sm">
+          <a href="products.html" class="hover:text-primary transition-colors hidden sm:inline">Boutique</a>
+          <a
+            href="cart.html"
+            class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <span>Panier</span>
+            <span
+              id="nav-cart-count"
+              class="inline-flex items-center justify-center min-w-[16px] h-4 text-[10px] bg-primary text-dark rounded-full px-1 leading-none"
+            ></span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="pt-24 pb-16 max-w-4xl mx-auto px-4 space-y-8">
+      <section>
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-semibold mb-1">Mon profil</h1>
+            <p class="text-xs text-white/60">
+              Gérez vos informations personnelles pour faciliter vos prochaines commandes.
+            </p>
+          </div>
+          <button
+            id="logout-btn"
+            class="px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/80 hover:bg-white/10"
+          >
+            Se déconnecter
+          </button>
+        </div>
+
+        <form id="profile-form" class="glass-card space-y-4 text-sm">
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-white/70 mb-1" for="profile-name">Nom complet</label>
+              <input id="profile-name" type="text" class="input-glass" />
+            </div>
+            <div>
+              <label class="block text-xs text-white/70 mb-1" for="profile-email">Email</label>
+              <input id="profile-email" type="email" class="input-glass bg-white/10" disabled />
+              <p class="text-[10px] text-white/50 mt-1">L’email sert d’identifiant et ne peut pas être modifié.</p>
+            </div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-white/70 mb-1" for="profile-phone">Téléphone</label>
+              <input id="profile-phone" type="tel" class="input-glass" />
+            </div>
+            <div>
+              <label class="block text-xs text-white/70 mb-1" for="profile-address">Adresse</label>
+              <input id="profile-address" type="text" class="input-glass" />
+            </div>
+          </div>
+          <p id="profile-message" class="text-xs text-primary min-h-[1.25rem]"></p>
+          <button
+            type="submit"
+            class="w-full sm:w-auto px-4 py-2 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition"
+          >
+            Mettre à jour le profil
+          </button>
+        </form>
+      </section>
+
+      <section>
+        <div class="flex items-center justify-between gap-3 mb-3">
+          <div>
+            <h2 class="text-lg font-semibold">Mes commandes</h2>
+            <p class="text-xs text-white/60">Historique de vos commandes passées chez Abi-Collection.</p>
+          </div>
+        </div>
+
+        <div id="orders-list" class="space-y-3 text-xs"></div>
+      </section>
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+

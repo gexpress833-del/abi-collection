@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Abi-Collection — Votre élégance, révélée.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C9A961", // doré métallique riche
+              gold: "#B8860B", // doré profond
+              dark: "#050816",
+            },
+            boxShadow: {
+              glow: "0 0 30px rgba(201, 169, 97, 0.6), 0 0 60px rgba(184, 134, 11, 0.3)",
+            },
+            backdropBlur: {
+              xs: "2px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <!-- Navbar -->
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+        <div class="flex items-center gap-3 text-xs sm:text-sm">
+          <a href="products.html" class="hover:text-primary transition-colors">Boutique</a>
+          <a href="account.html" class="hover:text-primary transition-colors hidden sm:inline">Mon compte</a>
+          <a
+            href="cart.html"
+            class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <span>Panier</span>
+            <span
+              id="nav-cart-count"
+              class="inline-flex items-center justify-center min-w-[16px] h-4 text-[10px] bg-primary text-dark rounded-full px-1 leading-none"
+            ></span>
+          </a>
+          <a href="login.html" id="nav-login-btn" class="px-3 py-1.5 rounded-full bg-primary text-dark text-xs font-semibold shadow-glow hover:bg-primary/90 transition-colors">
+            Se connecter
+          </a>
+          <button id="nav-user-chip" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors">
+            <span class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
+            <span id="nav-user-name" class="max-w-[90px] truncate"></span>
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <main class="pt-24 pb-16">
+      <section class="max-w-4xl mx-auto px-4 space-y-10">
+        <div>
+          <p class="uppercase tracking-[0.25em] text-xs text-primary/80 mb-3">Kolwezi • RDC • Beauté & Élégance</p>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight mb-4">
+            Abi-Collection<br />
+            <span class="bg-gradient-to-r from-primary via-gold to-white bg-clip-text text-transparent">Votre élégance, révélée.</span>
+          </h1>
+          <p class="text-sm sm:text-base text-white/70 mb-6">
+            Une boutique de beauté dédiée aux femmes et aux hommes élégants de Kolwezi et d'ailleurs. Nous vous proposons une sélection raffinée de parfums, accessoires et soins, dans une expérience en ligne soignée et lumineuse.
+          </p>
+          <div class="flex flex-wrap gap-3 mb-8">
+            <a
+              href="products.html"
+              class="px-5 py-2.5 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition"
+              >Voir la boutique</a
+            >
+            <a
+              href="register.html"
+              class="px-5 py-2.5 rounded-full border border-white/20 bg-white/5 text-xs sm:text-sm hover:bg-white/10 transition-colors"
+              >Créer mon compte</a
+            >
+          </div>
+          <div class="flex flex-wrap gap-4 text-xs text-white/60">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center text-[11px]">★</span>
+              <span>Expérience 100% mobile</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center text-[11px]">⚡</span>
+              <span>Commandes via WhatsApp</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="rounded-3xl bg-white/5 border border-white/10 p-5 sm:p-6 space-y-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-white/70">Catégories phares</p>
+            <div id="categories-grid" class="grid grid-cols-2 gap-3 text-[11px]"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Produits populaires -->
+      <section class="max-w-6xl mx-auto px-4 mt-16">
+        <div class="flex items-center justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg sm:text-xl font-semibold">Produits populaires</h2>
+            <p class="text-xs text-white/60">Une sélection d'incontournables Abi-Collection.</p>
+          </div>
+          <a href="products.html" class="text-xs text-primary hover:text-primary/80">Voir tout &rarr;</a>
+        </div>
+        <div id="popular-products" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs"></div>
+      </section>
+    </main>
+
+    <footer class="border-t border-white/10 mt-10 py-6 text-center text-[11px] text-white/50">
+      <p>Abi-Collection, Kolwezi • RDC</p>
+      <p class="mt-1">Votre élégance, révélée.</p>
+    </footer>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+

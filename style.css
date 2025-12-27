@@ -1,0 +1,124 @@
+/* Style additionnel pour Abi-Collection
+   Design futuriste doré et luxueux
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+.shadow-glow {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(201, 169, 97, 0.4);
+}
+
+.glass-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 20, 0.98);
+  padding: 1rem;
+}
+
+.input-glass {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(10, 8, 20, 0.7);
+  color: #fff;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.input-glass::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.input-glass:focus {
+  border-color: #C9A961;
+  box-shadow: 0 0 0 1px rgba(201, 169, 97, 0.5), 0 0 10px rgba(184, 134, 11, 0.3);
+}
+
+.chip-filter {
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(5, 8, 20, 0.7);
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.chip-filter:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chip-filter.active {
+  background: #C9A961;
+  border-color: #B8860B;
+  color: #050816;
+  box-shadow: 0 0 15px rgba(201, 169, 97, 0.5);
+}
+
+/* Fallback utilitaires si la config Tailwind personnalisée ne se charge pas */
+.bg-primary {
+  background-color: #C9A961;
+}
+
+.text-primary {
+  color: #C9A961;
+}
+
+.bg-gold {
+  background-color: #C9A961;
+}
+
+.text-gold {
+  color: #C9A961;
+}
+
+.bg-dark {
+  background-color: #050816;
+}
+
+/* Effets futuristes dorés supplémentaires */
+@keyframes gold-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(201, 169, 97, 0.5), 0 0 40px rgba(184, 134, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(201, 169, 97, 0.7), 0 0 60px rgba(184, 134, 11, 0.4);
+  }
+}
+
+.gold-glow-animated {
+  animation: gold-glow 3s ease-in-out infinite;
+}
+
+/* Amélioration des effets de hover pour les boutons dorés */
+button.bg-primary:hover,
+a.bg-primary:hover {
+  background-color: #B8860B !important;
+  box-shadow: 0 0 25px rgba(201, 169, 97, 0.7), 0 0 50px rgba(184, 134, 11, 0.4);
+  transition: all 0.3s ease;
+}
+
+/* Effet de brillance sur les éléments dorés */
+.text-primary,
+.text-gold {
+  text-shadow: 0 0 10px rgba(201, 169, 97, 0.6);
+}
+
+/* Bordure dorée pour les éléments actifs */
+.glass-card:focus-within,
+.glass-card:hover {
+  border-color: rgba(201, 169, 97, 0.4);
+  box-shadow: 0 0 15px rgba(201, 169, 97, 0.3);
+}
+
+

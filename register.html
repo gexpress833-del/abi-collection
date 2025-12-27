@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Créer un compte — Abi-Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      tailwind = window.tailwind || {};
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C9A961",
+              gold: "#B8860B",
+              dark: "#050816",
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="min-h-screen bg-[#080814] text-white font-[Poppins]">
+    <header class="fixed inset-x-0 top-0 z-30 bg-[#080814]/95 border-b border-white/10">
+      <nav class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-glow overflow-hidden">
+            <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-sm font-semibold text-dark\\'>AC</span>';" />
+          </div>
+          <div class="leading-tight">
+            <p class="font-semibold tracking-wide">Abi-Collection</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
+          </div>
+        </a>
+      </nav>
+    </header>
+
+    <main class="pt-24 pb-16 max-w-md mx-auto px-4">
+      <h1 class="text-xl sm:text-2xl font-semibold mb-1">Créer un compte</h1>
+      <p class="text-xs text-white/60 mb-6">
+        Enregistrez-vous pour passer vos commandes plus rapidement et suivre votre historique.
+      </p>
+
+      <form id="register-form" class="glass-card space-y-4 text-sm">
+        <div>
+          <label class="block text-xs text-white/70 mb-1" for="reg-name">Nom complet</label>
+          <input id="reg-name" type="text" required class="input-glass" placeholder="Nom Prénom" />
+        </div>
+        <div>
+          <label class="block text-xs text-white/70 mb-1" for="reg-email">Email</label>
+          <input id="reg-email" type="email" required class="input-glass" placeholder="vous@example.com" />
+        </div>
+        <div>
+          <label class="block text-xs text-white/70 mb-1" for="reg-phone">Téléphone</label>
+          <input id="reg-phone" type="tel" required class="input-glass" placeholder="+243 ..." />
+        </div>
+        <div>
+          <label class="block text-xs text-white/70 mb-1" for="reg-address">Adresse</label>
+          <input id="reg-address" type="text" class="input-glass" placeholder="Quartier, Avenue, Ville" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-white/70 mb-1" for="reg-password">Mot de passe</label>
+            <input id="reg-password" type="password" required class="input-glass" placeholder="••••••••" />
+          </div>
+          <div>
+            <label class="block text-xs text-white/70 mb-1" for="reg-password-confirm">Confirmer</label>
+            <input
+              id="reg-password-confirm"
+              type="password"
+              required
+              class="input-glass"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <p id="register-message" class="text-xs text-red-300 min-h-[1.25rem]"></p>
+
+        <button
+          type="submit"
+          class="w-full px-4 py-2.5 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition"
+        >
+          Créer mon compte
+        </button>
+      </form>
+
+      <p class="mt-4 text-xs text-white/70">
+        Vous avez déjà un compte ?
+        <a href="login.html" class="text-primary hover:text-primary/80">Se connecter</a>
+      </p>
+    </main>
+
+    <script src="supabase-config.js"></script>
+    <script src="supabase-integration.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+
+
