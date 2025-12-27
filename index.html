@@ -42,8 +42,8 @@
           </div>
         </a>
         <div class="flex items-center gap-3 text-xs sm:text-sm">
-          <a href="products.html" class="hover:text-primary transition-colors">Boutique</a>
-          <a href="account.html" class="hover:text-primary transition-colors hidden sm:inline">Mon compte</a>
+          <a href="products.html" class="px-3 py-1.5 rounded-full hover:bg-white/5 hover:border hover:border-white/10 transition-colors">Boutique</a>
+          <a href="account.html" class="px-3 py-1.5 rounded-full hover:bg-white/5 hover:border hover:border-white/10 transition-colors hidden sm:inline-flex">Mon compte</a>
           <a
             href="cart.html"
             class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
@@ -58,7 +58,7 @@
             Se connecter
           </a>
           <button id="nav-user-chip" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
+            <span id="nav-user-initial" class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
             <span id="nav-user-name" class="max-w-[90px] truncate"></span>
           </button>
         </div>
@@ -69,7 +69,18 @@
     <main class="pt-24 pb-16">
       <section class="max-w-4xl mx-auto px-4 space-y-10">
         <div>
-          <p class="uppercase tracking-[0.25em] text-xs text-primary/80 mb-3">Kolwezi • RDC • Beauté & Élégance</p>
+          <!-- Logo avec animation de rotation -->
+          <div class="flex justify-center mb-6">
+            <div class="relative">
+              <!-- Cercle rotatif autour du logo -->
+              <div class="logo-rotating-ring"></div>
+              <!-- Logo principal -->
+              <div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full bg-primary/20 border-2 border-primary/40 flex items-center justify-center shadow-glow overflow-hidden relative z-10">
+                <img src="LOGO%20AC.jpeg" alt="Abi-Collection" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'text-2xl sm:text-3xl font-semibold text-dark\\'>AC</span>';" />
+              </div>
+            </div>
+          </div>
+          <p class="uppercase tracking-[0.25em] text-xs text-primary/80 mb-3 text-center">Kolwezi • RDC • Beauté & Élégance</p>
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight mb-4">
             Abi-Collection<br />
             <span class="bg-gradient-to-r from-primary via-gold to-white bg-clip-text text-transparent">Votre élégance, révélée.</span>
@@ -80,13 +91,13 @@
           <div class="flex flex-wrap gap-3 mb-8">
             <a
               href="products.html"
-              class="px-5 py-2.5 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition"
-              >Voir la boutique</a
+              class="px-6 py-3 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition shadow-glow flex items-center gap-2"
+              >🛍️ Voir la boutique</a
             >
             <a
               href="register.html"
-              class="px-5 py-2.5 rounded-full border border-white/20 bg-white/5 text-xs sm:text-sm hover:bg-white/10 transition-colors"
-              >Créer mon compte</a
+              class="px-6 py-3 rounded-full border border-white/20 bg-white/5 text-sm hover:bg-white/10 transition-colors flex items-center gap-2"
+              >✨ Créer mon compte</a
             >
           </div>
           <div class="flex flex-wrap gap-4 text-xs text-white/60">

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin — Abi-Collection</title>
+    <title>Connexion — Abi-Collection</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <script>
       tailwind = window.tailwind || {};
@@ -32,7 +32,7 @@
           </div>
           <div class="leading-tight">
             <p class="font-semibold tracking-wide">Abi-Collection</p>
-            <p class="text-xs text-white/60">Dashboard administrateur</p>
+            <p class="text-xs text-white/60">Votre élégance, révélée.</p>
           </div>
         </a>
       </nav>
@@ -40,23 +40,15 @@
 
     <main class="pt-24 pb-16 max-w-6xl mx-auto px-4">
       <section id="admin-login-section" class="max-w-md mx-auto">
-        <h1 class="text-xl sm:text-2xl font-semibold mb-1">Connexion administrateur</h1>
-        <p class="text-xs text-white/60 mb-4">
-          Accès réservé. Les identifiants sont définis dans le code (LocalStorage).
+        <h1 class="text-xl sm:text-2xl font-semibold mb-1">Connexion</h1>
+        <p class="text-xs text-white/60 mb-6">
+          Accédez à votre espace Abi-Collection.
         </p>
-        <div class="glass-card mb-4 p-3 bg-primary/10 border border-primary/30">
-          <p class="text-xs text-white/80 font-semibold mb-1">Identifiants par défaut :</p>
-          <p class="text-[11px] text-white/70">Email : <span class="font-mono">admin@abi-collection.com</span></p>
-          <p class="text-[11px] text-white/70">Mot de passe : <span class="font-mono">AbiCollection2025!</span></p>
-          <button id="reset-admin-creds" class="mt-2 px-3 py-1 text-[10px] rounded-full bg-white/10 text-white/70 hover:bg-white/15">
-            Réinitialiser les identifiants
-          </button>
-        </div>
 
         <form id="admin-login-form" class="glass-card space-y-4 text-sm">
           <div>
-            <label class="block text-xs text-white/70 mb-1" for="admin-email">Email admin</label>
-            <input id="admin-email" type="email" required class="input-glass" placeholder="admin@abi-collection.com" />
+            <label class="block text-xs text-white/70 mb-1" for="admin-email">Email</label>
+            <input id="admin-email" type="email" required class="input-glass" placeholder="votre@email.com" />
           </div>
           <div>
             <label class="block text-xs text-white/70 mb-1" for="admin-password">Mot de passe</label>

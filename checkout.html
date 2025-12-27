@@ -21,13 +21,34 @@
             <p class="text-xs text-white/60">Votre élégance, révélée.</p>
           </div>
         </a>
+        <div class="flex items-center gap-3 text-xs sm:text-sm">
+          <a href="products.html" class="px-3 py-1.5 rounded-full hover:bg-white/5 hover:border hover:border-white/10 transition-colors hidden sm:inline-flex">Boutique</a>
+          <a href="account.html" class="px-3 py-1.5 rounded-full hover:bg-white/5 hover:border hover:border-white/10 transition-colors hidden sm:inline-flex">Mon compte</a>
+          <a
+            href="cart.html"
+            class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <span>Panier</span>
+            <span
+              id="nav-cart-count"
+              class="inline-flex items-center justify-center min-w-[16px] h-4 text-[10px] bg-primary text-dark rounded-full px-1 leading-none"
+            ></span>
+          </a>
+          <a href="login.html" id="nav-login-btn" class="px-3 py-1.5 rounded-full bg-primary text-dark text-xs font-semibold shadow-glow hover:bg-primary/90 transition-colors">
+            Se connecter
+          </a>
+          <button id="nav-user-chip" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors">
+            <span id="nav-user-initial" class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
+            <span id="nav-user-name" class="max-w-[90px] truncate"></span>
+          </button>
+        </div>
       </nav>
     </header>
 
     <main class="pt-24 pb-16 max-w-4xl mx-auto px-4">
-      <h1 class="text-xl sm:text-2xl font-semibold mb-1">Validation de la commande</h1>
+      <h1 class="text-xl sm:text-2xl font-semibold mb-1">📋 Dernière étape</h1>
       <p class="text-xs text-white/60 mb-6">
-        Vérifiez vos informations. Votre commande sera envoyée directement sur WhatsApp.
+        Vérifiez vos informations ci-dessous. En cliquant sur "Confirmer", WhatsApp s'ouvrira automatiquement avec votre commande.
       </p>
 
       <section
@@ -37,12 +58,17 @@
 
       <button
         id="confirm-order-btn"
-        class="mt-4 w-full px-4 py-2.5 rounded-full bg-gradient-to-r from-primary to-gold text-dark text-sm font-semibold shadow-glow hover:opacity-90 transition"
+        class="mt-4 w-full px-6 py-3 rounded-full bg-gradient-to-r from-primary to-gold text-dark text-base font-semibold shadow-glow hover:opacity-90 transition flex items-center justify-center gap-2"
       >
-        Confirmer et ouvrir WhatsApp
+        📱 Confirmer et ouvrir WhatsApp
       </button>
       <p id="checkout-message" class="text-xs text-red-300 mt-2"></p>
     </main>
+
+    <footer class="border-t border-white/10 mt-10 py-6 text-center text-[11px] text-white/50">
+      <p>Abi-Collection, Kolwezi • RDC</p>
+      <p class="mt-1">Votre élégance, révélée.</p>
+    </footer>
 
     <script src="supabase-config.js"></script>
     <script src="supabase-integration.js"></script>

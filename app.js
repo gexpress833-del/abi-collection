@@ -9,6 +9,7 @@
     ORDERS: "orders",
     CART: "cart",
     ADMIN_CREDENTIALS: "adminCredentials",
+    ADMIN_LOGGED_IN: "adminLoggedIn",
     POST_LOGIN_REDIRECT: "postLoginRedirect",
     CATEGORIES: "categories",
   };
@@ -44,6 +45,38 @@
       window.localStorage.removeItem(LS_KEYS.CURRENT_USER);
     }
   }
+
+  // ---------- Fonction utilitaire pour ouvrir WhatsApp ----------
+  // Fonction globale accessible depuis n'importe où dans l'application
+  window.openWhatsApp = function(url) {
+    // Méthode 1 : Essayer window.open (peut être bloqué par les bloqueurs de popup)
+    try {
+      const popup = window.open(url, "_blank", "noopener,noreferrer");
+      if (popup && !popup.closed) {
+        // Vérifier après un court délai si la popup a été bloquée
+        setTimeout(() => {
+          if (popup.closed || popup.location.href === "about:blank") {
+            // Popup bloquée, utiliser window.location
+            window.location.href = url;
+          }
+        }, 100);
+        return true;
+      } else {
+        // Popup bloquée, utiliser window.location
+        window.location.href = url;
+        return true;
+      }
+    } catch (e) {
+      // En cas d'erreur, utiliser window.location
+      try {
+        window.location.href = url;
+        return true;
+      } catch (e2) {
+        console.error("Impossible d'ouvrir WhatsApp:", e2);
+        return false;
+      }
+    }
+  };
 
   // ---------- Fonctions Supabase avec fallback LocalStorage ----------
   
@@ -156,26 +189,27 @@
 
     // Mapping des catégories vers les noms de fichiers d'images disponibles
     // Support des catégories au singulier et au pluriel
+    // Chaque catégorie peut avoir plusieurs images pour éviter le dédoublement
     const categoryImageMap = {
       // Singulier
-      "parfum": "images/parfums.jpg",
-      "montre": "images/Montre Femmes.webp",
-      "bague": "images/Bague.webp",
-      "gourmette": "images/Gourmette.jpg",
-      "foulard": "images/foulard-soie-boheme.jpg",
-      "deodorant": "images/Déodorant.jpg",
-      "lunette": "images/Lunettes.jpg",
+      "parfum": ["images/parfums.jpg"],
+      "montre": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bague": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmette": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulard": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorant": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunette": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
       // Pluriel (pour compatibilité avec les produits existants)
-      "parfums": "images/parfums.jpg",
-      "montres": "images/Montre Femmes.webp",
-      "bijoux": "images/Bague.webp",
-      "gourmettes": "images/Gourmette.jpg",
-      "foulards": "images/foulard-soie-boheme.jpg",
-      "deodorants": "images/Déodorant.jpg",
-      "lunettes": "images/Lunettes.jpg",
-      "accessoires": "images/Lunettes.jpg",
-      "vetements": "images/foulard-soie-boheme.jpg",
-      "hygiene": "images/Déodorant.jpg"
+      "parfums": ["images/parfums.jpg"],
+      "montres": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bijoux": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmettes": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulards": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorants": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunettes": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "accessoires": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "vetements": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "hygiene": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"]
     };
 
     const category = product.category || "";
@@ -208,9 +242,26 @@
       }
     }
 
-    // 2. Si aucune image spécifique, utiliser l'image de catégorie par défaut
+    // 2. Si aucune image spécifique, utiliser une image de catégorie différente selon l'ID du produit
+    // Cela évite le dédoublement d'images pour les produits de la même catégorie
     if (category && categoryImageMap[category]) {
-      return categoryImageMap[category];
+      const availableImages = categoryImageMap[category];
+      
+      // Si plusieurs images sont disponibles pour cette catégorie, en choisir une selon l'ID
+      if (availableImages.length > 1 && productId) {
+        // Créer un hash simple à partir de l'ID pour sélectionner une image
+        let hash = 0;
+        for (let i = 0; i < productId.length; i++) {
+          hash = ((hash << 5) - hash) + productId.charCodeAt(i);
+          hash = hash & hash; // Convertir en entier 32 bits
+        }
+        // Utiliser le hash pour sélectionner une image différente pour chaque produit
+        const imageIndex = Math.abs(hash) % availableImages.length;
+        return availableImages[imageIndex];
+      }
+      
+      // Si une seule image disponible ou pas d'ID, utiliser la première image
+      return Array.isArray(availableImages) ? availableImages[0] : availableImages;
     }
     
     // 3. Image par défaut si aucune catégorie n'est trouvée
@@ -219,55 +270,74 @@
 
   // Fonction pour gérer les erreurs de chargement d'images (accessible globalement)
   window.handleImageError = function(img, fallbackUrl) {
+    // Éviter les boucles infinies et le dédoublement - si on a déjà essayé, arrêter
+    if (img.dataset.tried === "true") {
+      img.onerror = null;
+      // Ne pas charger d'image de fallback si on a déjà essayé - laisser l'image cassée plutôt que de créer un dédoublement
+      return;
+    }
+    
+    // Vérifier si l'image actuelle est déjà une image locale (pour éviter de remplacer une image qui fonctionne)
+    const currentSrc = img.src || "";
+    if (currentSrc.includes("images/")) {
+      // Si c'est déjà une image locale, ne rien faire pour éviter le dédoublement
+      img.onerror = null;
+      return;
+    }
+    
+    // Vérifier si l'image actuelle est une URL externe qui a échoué
+    // Si c'est le cas, seulement alors charger l'image de catégorie
+    if (!currentSrc.startsWith("http") && !currentSrc.startsWith("data:image/")) {
+      // Si ce n'est pas une URL externe, ne rien faire
+      img.onerror = null;
+      return;
+    }
+    
     const category = img.dataset.category || "";
     const categoryImageMap = {
       // Singulier
-      "parfum": "images/parfums.jpg",
-      "montre": "images/Montre Femmes.webp",
-      "bague": "images/Bague.webp",
-      "gourmette": "images/Gourmette.jpg",
-      "foulard": "images/foulard-soie-boheme.jpg",
-      "deodorant": "images/Déodorant.jpg",
-      "lunette": "images/Lunettes.jpg",
+      "parfum": ["images/parfums.jpg"],
+      "montre": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bague": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmette": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulard": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorant": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunette": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
       // Pluriel
-      "parfums": "images/parfums.jpg",
-      "montres": "images/Montre Femmes.webp",
-      "bijoux": "images/Bague.webp",
-      "gourmettes": "images/Gourmette.jpg",
-      "foulards": "images/foulard-soie-boheme.jpg",
-      "deodorants": "images/Déodorant.jpg",
-      "lunettes": "images/Lunettes.jpg",
-      "accessoires": "images/Lunettes.jpg",
-      "vetements": "images/foulard-soie-boheme.jpg",
-      "hygiene": "images/Déodorant.jpg"
+      "parfums": ["images/parfums.jpg"],
+      "montres": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bijoux": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmettes": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulards": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorants": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunettes": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "accessoires": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "vetements": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "hygiene": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"]
     };
     
     const defaultImage = "images/parfums.jpg";
     
-    if (img.dataset.tried === "true") {
-      // Si on a déjà essayé, utiliser l'image par défaut
-      img.src = defaultImage;
-      img.onerror = null;
-      return;
-    }
-    
-    // Marquer qu'on a essayé
+    // Marquer qu'on a essayé pour éviter les boucles
     img.dataset.tried = "true";
     
-    // Essayer d'abord une image de catégorie
+    // Seulement charger l'image de catégorie si l'URL externe a vraiment échoué
     if (category && categoryImageMap[category]) {
-      img.src = categoryImageMap[category];
+      const availableImages = categoryImageMap[category];
+      // Utiliser la première image disponible
+      const fallbackImage = Array.isArray(availableImages) ? availableImages[0] : availableImages;
+      img.src = fallbackImage;
+      // Désactiver complètement le gestionnaire d'erreur après le premier essai pour éviter le dédoublement
+      img.onerror = function() {
+        img.onerror = null;
+        img.src = defaultImage;
+      };
       return;
     }
     
-    // Si une URL externe existe, l'essayer
-    if (fallbackUrl && fallbackUrl.startsWith("http")) {
-      img.src = fallbackUrl;
-    } else {
-      // Sinon, utiliser l'image par défaut
-      img.src = defaultImage;
-      img.onerror = null;
-    }
+    // Sinon, utiliser l'image par défaut directement
+    img.src = defaultImage;
+    img.onerror = null;
   };
 
   function getCategoryImage(category) {
@@ -276,28 +346,29 @@
     // Utiliser le même mapping que pour les produits
     const categoryImageMap = {
       // Singulier
-      "parfum": "images/parfums.jpg",
-      "montre": "images/Montre Femmes.webp",
-      "bague": "images/Bague.webp",
-      "gourmette": "images/Gourmette.jpg",
-      "foulard": "images/foulard-soie-boheme.jpg",
-      "deodorant": "images/Déodorant.jpg",
-      "lunette": "images/Lunettes.jpg",
+      "parfum": ["images/parfums.jpg"],
+      "montre": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bague": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmette": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulard": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorant": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunette": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
       // Pluriel
-      "parfums": "images/parfums.jpg",
-      "montres": "images/Montre Femmes.webp",
-      "bijoux": "images/Bague.webp",
-      "gourmettes": "images/Gourmette.jpg",
-      "foulards": "images/foulard-soie-boheme.jpg",
-      "deodorants": "images/Déodorant.jpg",
-      "lunettes": "images/Lunettes.jpg",
-      "accessoires": "images/Lunettes.jpg",
-      "vetements": "images/foulard-soie-boheme.jpg",
-      "hygiene": "images/Déodorant.jpg"
+      "parfums": ["images/parfums.jpg"],
+      "montres": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bijoux": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmettes": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulards": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorants": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunettes": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "accessoires": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "vetements": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "hygiene": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"]
     };
     
-    // Retourner l'image correspondante ou une image par défaut
-    return categoryImageMap[category.toLowerCase()] || "images/parfums.jpg";
+    const images = categoryImageMap[category.toLowerCase()];
+    // Retourner la première image disponible ou une image par défaut
+    return (images && images.length > 0) ? images[0] : "images/parfums.jpg";
   }
 
   function initCategories() {
@@ -500,6 +571,79 @@
     updateNavbarCartCount();
   }
 
+  // Fonction globale pour ouvrir le modal de photo (accessible depuis partout)
+  function openPhotoModal(photoSrc) {
+    // Créer le modal s'il n'existe pas
+    let photoModal = document.getElementById("photo-modal");
+    let photoModalImage = document.getElementById("photo-modal-image");
+    let photoModalClose = document.getElementById("photo-modal-close");
+    
+    if (!photoModal) {
+      // Créer le modal dynamiquement
+      photoModal = document.createElement("div");
+      photoModal.id = "photo-modal";
+      photoModal.className = "fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden";
+      photoModal.innerHTML = `
+        <div class="relative max-w-4xl max-h-[90vh] p-4">
+          <button id="photo-modal-close" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-xl transition z-10 cursor-pointer">
+            ✕
+          </button>
+          <img id="photo-modal-image" src="" alt="Photo de profil" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl object-contain" />
+        </div>
+      `;
+      document.body.appendChild(photoModal);
+      photoModalImage = document.getElementById("photo-modal-image");
+      photoModalClose = document.getElementById("photo-modal-close");
+    }
+    
+    // Attacher les event listeners (même si le modal existe déjà)
+    if (photoModalClose && !photoModalClose.dataset.listenerAttached) {
+      photoModalClose.addEventListener("click", function (e) {
+        e.stopPropagation(); // Empêcher la propagation vers le modal
+        closePhotoModal();
+      });
+      photoModalClose.dataset.listenerAttached = "true";
+    }
+    
+    if (photoModal && !photoModal.dataset.listenerAttached) {
+      photoModal.addEventListener("click", function (e) {
+        if (e.target === photoModal || e.target.closest("#photo-modal-image")) {
+          // Ne fermer que si on clique sur le fond, pas sur l'image
+          if (e.target === photoModal) {
+            closePhotoModal();
+          }
+        }
+      });
+      photoModal.dataset.listenerAttached = "true";
+    }
+    
+    // Event listener pour Escape (une seule fois)
+    if (!window.photoModalEscapeListener) {
+      document.addEventListener("keydown", function (e) {
+        const modal = document.getElementById("photo-modal");
+        if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) {
+          closePhotoModal();
+        }
+      });
+      window.photoModalEscapeListener = true;
+    }
+    
+    // Afficher le modal
+    if (photoModal && photoModalImage && photoSrc) {
+      photoModalImage.src = photoSrc;
+      photoModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+  }
+  
+  function closePhotoModal() {
+    const photoModal = document.getElementById("photo-modal");
+    if (photoModal) {
+      photoModal.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+  }
+
   // ---------- Navbar ----------
   function updateNavbarCartCount() {
     const el = document.getElementById("nav-cart-count");
@@ -518,6 +662,7 @@
     const loginBtn = document.getElementById("nav-login-btn");
     const chip = document.getElementById("nav-user-chip");
     const nameSpan = document.getElementById("nav-user-name");
+    const initialSpan = document.getElementById("nav-user-initial");
     const user = getCurrentUser();
 
     if (!loginBtn && !chip) return;
@@ -525,11 +670,71 @@
     if (user) {
       if (loginBtn) loginBtn.style.display = "none";
       if (chip && nameSpan) {
-        nameSpan.textContent = user.name || user.email || "Client";
+        const userName = user.name || user.email || "Client";
+        nameSpan.textContent = userName;
+        
+        // Afficher la photo de profil si disponible, sinon l'initiale
+        if (initialSpan && chip) {
+          const container = initialSpan.parentElement;
+          
+          if (user.photo) {
+            // Si l'utilisateur a une photo, créer/afficher une image
+            let img = document.getElementById("nav-user-initial-img");
+            if (!img) {
+              // Créer l'image si elle n'existe pas
+              img = document.createElement("img");
+              img.id = "nav-user-initial-img";
+              img.className = "w-6 h-6 rounded-full object-cover cursor-pointer hover:opacity-80 transition";
+              img.title = "Cliquez pour voir en grand";
+              // Remplacer le span par l'image
+              if (initialSpan.parentNode) {
+                initialSpan.parentNode.replaceChild(img, initialSpan);
+              }
+            }
+            img.src = user.photo;
+            img.alt = userName;
+            
+            // Ajouter un event listener pour voir la photo en grand
+            img.addEventListener("click", function (e) {
+              e.stopPropagation(); // Empêcher la navigation vers account.html
+              openPhotoModal(user.photo);
+            });
+          } else {
+            // Si pas de photo, afficher l'initiale
+            let span = document.getElementById("nav-user-initial");
+            if (!span || span.tagName === "IMG") {
+              // Créer le span si il n'existe pas ou si c'est une image
+              span = document.createElement("span");
+              span.id = "nav-user-initial";
+              span.className = "w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark";
+              // Remplacer l'image par le span si nécessaire
+              const existing = document.getElementById("nav-user-initial-img") || initialSpan;
+              if (existing.parentNode) {
+                existing.parentNode.replaceChild(span, existing);
+              }
+            }
+            const initial = userName.charAt(0).toUpperCase();
+            span.textContent = initial;
+          }
+        }
+        
         chip.style.display = "inline-flex";
-        chip.addEventListener("click", function () {
-          window.location.href = "account.html";
-        });
+        
+        // Retirer les anciens event listeners pour éviter les doublons
+        const newChip = chip.cloneNode(true);
+        chip.parentNode.replaceChild(newChip, chip);
+        
+        // Ajouter le nouvel event listener
+        const updatedChip = document.getElementById("nav-user-chip");
+        if (updatedChip) {
+          updatedChip.addEventListener("click", function (e) {
+            // Ne pas naviguer si on clique sur l'image de profil
+            if (e.target.tagName === "IMG" && e.target.id === "nav-user-initial-img") {
+              return;
+            }
+            window.location.href = "account.html";
+          });
+        }
       }
     } else {
       if (chip) chip.style.display = "none";
@@ -1082,7 +1287,10 @@
       ).value;
 
       if (password !== passwordConfirm) {
-        if (msg) msg.textContent = "Les mots de passe ne correspondent pas.";
+        if (msg) {
+          msg.style.color = "#ef4444";
+          msg.textContent = "❌ Les deux mots de passe doivent être identiques.";
+        }
         return;
       }
 
@@ -1091,7 +1299,10 @@
         (u) => u.email.toLowerCase() === email.toLowerCase()
       );
       if (exists) {
-        if (msg) msg.textContent = "Un compte existe déjà avec cet email.";
+        if (msg) {
+          msg.style.color = "#ef4444";
+          msg.textContent = "❌ Cet email est déjà utilisé. Essayez de vous connecter ou utilisez un autre email.";
+        }
         return;
       }
 
@@ -1108,7 +1319,8 @@
       setCurrentUser(newUser);
       if (msg) {
         msg.style.color = "#C9A961";
-        msg.textContent = "Compte créé avec succès. Redirection...";
+        msg.style.color = "#C9A961";
+        msg.textContent = "✅ Compte créé avec succès ! Redirection en cours...";
       }
       setTimeout(() => {
         const redirect = readLS(LS_KEYS.POST_LOGIN_REDIRECT, null);
@@ -1122,7 +1334,30 @@
     });
   }
 
-  // Connexion
+  // Fonction pour vérifier et connecter l'admin
+  function checkAndLoginAdmin(email, password) {
+    // S'assurer que les identifiants admin sont initialisés
+    seedAdminCredentials();
+    const adminCreds = readLS(LS_KEYS.ADMIN_CREDENTIALS, null);
+    
+    if (!adminCreds) {
+      return false;
+    }
+
+    // Vérifier si les identifiants correspondent à ceux de l'admin
+    if (
+      email.toLowerCase() === adminCreds.email.toLowerCase() &&
+      password === adminCreds.password
+    ) {
+      // Connecter l'admin
+      writeLS(LS_KEYS.ADMIN_LOGGED_IN, true);
+      return true;
+    }
+    
+    return false;
+  }
+
+  // Connexion (clients et admin)
   function initLoginPage() {
     const form = document.getElementById("login-form");
     if (!form) return;
@@ -1134,6 +1369,20 @@
       const email = document.getElementById("login-email").value.trim();
       const password = document.getElementById("login-password").value;
 
+      // Vérifier d'abord si c'est un admin
+      if (checkAndLoginAdmin(email, password)) {
+        // C'est un admin, rediriger vers admin.html
+        if (msg) {
+          msg.style.color = "#C9A961";
+          msg.textContent = "Connexion admin réussie. Redirection...";
+        }
+        setTimeout(() => {
+          window.location.href = "admin.html";
+        }, 600);
+        return;
+      }
+
+      // Sinon, vérifier si c'est un client
       const users = readLS(LS_KEYS.USERS, []);
       const user = users.find(
         (u) =>
@@ -1142,14 +1391,20 @@
       );
 
       if (!user) {
-        if (msg) msg.textContent = "Identifiants incorrects.";
+        if (msg) {
+          msg.style.color = "#ef4444";
+          msg.style.color = "#ef4444";
+          msg.textContent = "❌ Email ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.";
+        }
         return;
       }
 
+      // C'est un client, connecter normalement
       setCurrentUser(user);
       if (msg) {
         msg.style.color = "#C9A961";
-        msg.textContent = "Connexion réussie. Redirection...";
+        msg.style.color = "#C9A961";
+        msg.textContent = "✅ Connexion réussie ! Redirection en cours...";
       }
       setTimeout(() => {
         const redirect = readLS(LS_KEYS.POST_LOGIN_REDIRECT, null);
@@ -1180,11 +1435,110 @@
     const addressInput = document.getElementById("profile-address");
     const msg = document.getElementById("profile-message");
     const logoutBtn = document.getElementById("logout-btn");
+    const photoInput = document.getElementById("profile-photo-input");
+    const photoPreview = document.getElementById("profile-photo-preview");
+    const photoInitial = document.getElementById("profile-photo-initial");
+    const photoContainer = document.getElementById("profile-photo-container");
+    const photoRemoveBtn = document.getElementById("profile-photo-remove");
+
+    // Variable pour stocker la photo en base64
+    let profilePhotoData = user.photo || null;
+
+    // Fonction pour afficher la photo de profil
+    function displayProfilePhoto(photoData) {
+      if (photoData && photoPreview && photoInitial) {
+        photoPreview.src = photoData;
+        photoPreview.classList.remove("hidden");
+        photoInitial.classList.add("hidden");
+        if (photoRemoveBtn) photoRemoveBtn.classList.remove("hidden");
+        // Rendre la photo cliquable pour voir en grand
+        if (photoContainer) {
+          photoContainer.style.cursor = "pointer";
+        }
+      } else if (photoPreview && photoInitial) {
+        photoPreview.classList.add("hidden");
+        photoInitial.classList.remove("hidden");
+        // Afficher l'initiale du nom
+        const userName = user.name || user.email || "A";
+        photoInitial.textContent = userName.charAt(0).toUpperCase();
+        if (photoRemoveBtn) photoRemoveBtn.classList.add("hidden");
+        // Retirer le curseur pointer si pas de photo
+        if (photoContainer) {
+          photoContainer.style.cursor = "default";
+        }
+      }
+    }
+
+    // Initialiser l'affichage de la photo
+    displayProfilePhoto(profilePhotoData);
+
+    // Ouvrir le modal en cliquant sur la photo
+    if (photoContainer) {
+      photoContainer.addEventListener("click", function (e) {
+        // Ne pas ouvrir si on clique sur le bouton d'upload
+        if (e.target.closest("label[for='profile-photo-input']")) {
+          return;
+        }
+        if (profilePhotoData) {
+          openPhotoModal(profilePhotoData);
+        }
+      });
+    }
 
     if (nameInput) nameInput.value = user.name || "";
     if (emailInput) emailInput.value = user.email || "";
     if (phoneInput) phoneInput.value = user.phone || "";
     if (addressInput) addressInput.value = user.address || "";
+
+    // Gestion de l'upload de photo
+    if (photoInput) {
+      photoInput.addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          // Vérifier la taille du fichier (max 2MB)
+          if (file.size > 2 * 1024 * 1024) {
+            if (msg) {
+              msg.style.color = "#ef4444";
+              msg.textContent = "❌ L'image est trop grande. Taille maximale : 2MB.";
+            }
+            return;
+          }
+
+          // Vérifier le type de fichier
+          if (!file.type.startsWith("image/")) {
+            if (msg) {
+              msg.style.color = "#ef4444";
+              msg.textContent = "❌ Veuillez sélectionner une image valide.";
+            }
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            profilePhotoData = event.target.result;
+            displayProfilePhoto(profilePhotoData);
+            if (msg) {
+              msg.style.color = "#C9A961";
+              msg.textContent = "✅ Photo chargée. Cliquez sur 'Mettre à jour' pour enregistrer.";
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Gestion de la suppression de la photo
+    if (photoRemoveBtn) {
+      photoRemoveBtn.addEventListener("click", function () {
+        profilePhotoData = null;
+        displayProfilePhoto(null);
+        if (photoInput) photoInput.value = "";
+        if (msg) {
+          msg.style.color = "#C9A961";
+          msg.textContent = "✅ Photo supprimée. Cliquez sur 'Mettre à jour' pour enregistrer.";
+        }
+      });
+    }
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -1193,6 +1547,7 @@
         name: nameInput ? nameInput.value.trim() : user.name,
         phone: phoneInput ? phoneInput.value.trim() : user.phone,
         address: addressInput ? addressInput.value.trim() : user.address,
+        photo: profilePhotoData || null,
       };
 
       const users = readLS(LS_KEYS.USERS, []);
@@ -1202,9 +1557,13 @@
         writeLS(LS_KEYS.USERS, users);
       }
       setCurrentUser(updatedUser);
+      
+      // Mettre à jour la navigation
+      initNavbarUser();
+      
       if (msg) {
         msg.style.color = "#C9A961";
-        msg.textContent = "Profil mis à jour.";
+        msg.textContent = "✅ Vos informations ont été mises à jour avec succès !";
       }
     });
 
@@ -1359,7 +1718,10 @@
       btn.addEventListener("click", function () {
         const cart = getCart();
         if (cart.length === 0) {
-          if (msg) msg.textContent = "Votre panier est vide.";
+          if (msg) {
+            msg.style.color = "#ef4444";
+            msg.textContent = "❌ Votre panier est vide. Ajoutez des produits depuis la boutique.";
+          }
           return;
         }
         const user = getCurrentUser();
@@ -1506,7 +1868,7 @@
         const currentCart = getCart();
         if (!currentCart || currentCart.length === 0) {
           if (msg) {
-            msg.textContent = "❌ Votre panier est vide. Impossible de soumettre une commande vide.";
+            msg.textContent = "❌ Votre panier est vide. Retournez à la boutique pour ajouter des produits.";
             msg.style.color = "#ef4444";
           }
           return;
@@ -1531,7 +1893,7 @@
         // Validation stricte
         if (!currentItems || currentItems.length === 0) {
           if (msg) {
-            msg.textContent = "❌ Aucun produit valide dans votre panier. Veuillez ajouter des produits avant de commander.";
+            msg.textContent = "❌ Aucun produit valide dans votre panier. Retournez à la boutique pour ajouter des produits.";
             msg.style.color = "#ef4444";
           }
           return;
@@ -1542,7 +1904,7 @@
         
         if (currentTotal <= 0) {
           if (msg) {
-            msg.textContent = "❌ Le total de votre commande est invalide. Veuillez vérifier votre panier.";
+            msg.textContent = "❌ Erreur dans votre panier. Retournez à la boutique et réessayez.";
             msg.style.color = "#ef4444";
           }
           return;
@@ -1552,7 +1914,7 @@
           // Désactiver le bouton pendant le traitement
           if (btn) {
             btn.disabled = true;
-            btn.textContent = "Traitement en cours...";
+            btn.textContent = "⏳ Traitement en cours...";
           }
 
           const order = {
@@ -1628,19 +1990,37 @@
           );
 
           const message = encodeURIComponent(lines.join("\n"));
-          const url = "https://wa.me/243828796100?text=" + message;
+          const whatsappNumber = "243828796100"; // Numéro WhatsApp de l'entreprise
+          const url = "https://wa.me/" + whatsappNumber + "?text=" + message;
 
-          window.open(url, "_blank");
+          // Ouvrir WhatsApp avec la fonction globale
+          const whatsappOpened = window.openWhatsApp ? window.openWhatsApp(url) : (() => {
+            // Fallback si la fonction globale n'est pas disponible
+            try {
+              window.location.href = url;
+              return true;
+            } catch (e) {
+              return false;
+            }
+          })();
+          
           if (msg) {
             msg.style.color = "#C9A961";
-            msg.textContent =
-              "✅ Commande enregistrée avec succès ! WhatsApp devrait s'ouvrir dans un nouvel onglet.";
+            if (whatsappOpened) {
+              msg.textContent =
+                "✅ Commande enregistrée avec succès ! WhatsApp devrait s'ouvrir dans un instant.";
+            } else {
+              msg.textContent =
+                "✅ Commande enregistrée ! Cliquez ici pour ouvrir WhatsApp manuellement : " + url;
+              msg.style.cursor = "pointer";
+              msg.onclick = () => window.location.href = url;
+            }
           }
         } catch (error) {
         // Réactiver le bouton en cas d'erreur
         if (btn) {
           btn.disabled = false;
-          btn.textContent = "Confirmer et ouvrir WhatsApp";
+          btn.textContent = "📱 Confirmer et ouvrir WhatsApp";
         }
         if (msg) {
           msg.style.color = "#ef4444";
@@ -1659,12 +2039,49 @@
     });
   }
 
+  // Initialiser les event listeners du modal de photo au chargement
+  function initPhotoModal() {
+    const photoModal = document.getElementById("photo-modal");
+    const photoModalClose = document.getElementById("photo-modal-close");
+    
+    if (photoModalClose && !photoModalClose.dataset.listenerAttached) {
+      photoModalClose.addEventListener("click", function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        closePhotoModal();
+      });
+      photoModalClose.dataset.listenerAttached = "true";
+    }
+    
+    if (photoModal && !photoModal.dataset.listenerAttached) {
+      photoModal.addEventListener("click", function (e) {
+        // Fermer seulement si on clique sur le fond (pas sur l'image ou le bouton)
+        if (e.target === photoModal) {
+          closePhotoModal();
+        }
+      });
+      photoModal.dataset.listenerAttached = "true";
+    }
+    
+    // Event listener pour Escape (une seule fois)
+    if (!window.photoModalEscapeListener) {
+      document.addEventListener("keydown", function (e) {
+        const modal = document.getElementById("photo-modal");
+        if (e.key === "Escape" && modal && !modal.classList.contains("hidden")) {
+          closePhotoModal();
+        }
+      });
+      window.photoModalEscapeListener = true;
+    }
+  }
+
   // ---------- Bootstrap ----------
   document.addEventListener("DOMContentLoaded", async function () {
     seedAdminCredentials();
     seedProducts();
     initNavbar();
     initCategories();
+    initPhotoModal(); // Initialiser le modal de photo
     await initHomePage();
     await initProductsPage();
     await initProductDetailPage();

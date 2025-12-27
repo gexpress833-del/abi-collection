@@ -39,41 +39,42 @@
     </header>
 
     <main class="pt-24 pb-16 max-w-md mx-auto px-4">
-      <h1 class="text-xl sm:text-2xl font-semibold mb-1">Créer un compte</h1>
+      <h1 class="text-xl sm:text-2xl font-semibold mb-1">✨ Créer mon compte</h1>
       <p class="text-xs text-white/60 mb-6">
-        Enregistrez-vous pour passer vos commandes plus rapidement et suivre votre historique.
+        Remplissez le formulaire ci-dessous. C'est rapide et gratuit !
       </p>
 
       <form id="register-form" class="glass-card space-y-4 text-sm">
         <div>
           <label class="block text-xs text-white/70 mb-1" for="reg-name">Nom complet</label>
-          <input id="reg-name" type="text" required class="input-glass" placeholder="Nom Prénom" />
+          <input id="reg-name" type="text" required class="input-glass" placeholder="Ex: Jean Dupont" />
         </div>
         <div>
           <label class="block text-xs text-white/70 mb-1" for="reg-email">Email</label>
-          <input id="reg-email" type="email" required class="input-glass" placeholder="vous@example.com" />
+          <input id="reg-email" type="email" required class="input-glass" placeholder="Ex: jean@example.com" />
         </div>
         <div>
           <label class="block text-xs text-white/70 mb-1" for="reg-phone">Téléphone</label>
-          <input id="reg-phone" type="tel" required class="input-glass" placeholder="+243 ..." />
+          <input id="reg-phone" type="tel" required class="input-glass" placeholder="Ex: +243 900 000 000" />
+          <p class="text-[10px] text-white/50 mt-1">Pour recevoir vos commandes</p>
         </div>
         <div>
-          <label class="block text-xs text-white/70 mb-1" for="reg-address">Adresse</label>
-          <input id="reg-address" type="text" class="input-glass" placeholder="Quartier, Avenue, Ville" />
+          <label class="block text-xs text-white/70 mb-1" for="reg-address">Adresse (optionnel)</label>
+          <input id="reg-address" type="text" class="input-glass" placeholder="Ex: Quartier X, Avenue Y, Kolwezi" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs text-white/70 mb-1" for="reg-password">Mot de passe</label>
-            <input id="reg-password" type="password" required class="input-glass" placeholder="••••••••" />
+            <input id="reg-password" type="password" required class="input-glass" placeholder="Au moins 6 caractères" />
           </div>
           <div>
-            <label class="block text-xs text-white/70 mb-1" for="reg-password-confirm">Confirmer</label>
+            <label class="block text-xs text-white/70 mb-1" for="reg-password-confirm">Confirmer le mot de passe</label>
             <input
               id="reg-password-confirm"
               type="password"
               required
               class="input-glass"
-              placeholder="••••••••"
+              placeholder="Répétez le même mot de passe"
             />
           </div>
         </div>
@@ -82,9 +83,9 @@
 
         <button
           type="submit"
-          class="w-full px-4 py-2.5 rounded-full bg-primary text-dark text-sm font-semibold hover:bg-primary/90 transition"
+          class="w-full px-6 py-3 rounded-full bg-primary text-dark text-base font-semibold hover:bg-primary/90 transition shadow-glow flex items-center justify-center gap-2"
         >
-          Créer mon compte
+          ✅ Créer mon compte
         </button>
       </form>
 
@@ -93,6 +94,11 @@
         <a href="login.html" class="text-primary hover:text-primary/80">Se connecter</a>
       </p>
     </main>
+
+    <footer class="border-t border-white/10 mt-10 py-6 text-center text-[11px] text-white/50">
+      <p>Abi-Collection, Kolwezi • RDC</p>
+      <p class="mt-1">Votre élégance, révélée.</p>
+    </footer>
 
     <script src="supabase-config.js"></script>
     <script src="supabase-integration.js"></script>

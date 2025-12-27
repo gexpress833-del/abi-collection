@@ -144,26 +144,27 @@
 
     // Mapping des catégories vers les noms de fichiers d'images disponibles
     // Support des catégories au singulier et au pluriel
+    // Chaque catégorie peut avoir plusieurs images pour éviter le dédoublement
     const categoryImageMap = {
       // Singulier
-      "parfum": "images/parfums.jpg",
-      "montre": "images/Montre Femmes.webp",
-      "bague": "images/Bague.webp",
-      "gourmette": "images/Gourmette.jpg",
-      "foulard": "images/foulard-soie-boheme.jpg",
-      "deodorant": "images/Déodorant.jpg",
-      "lunette": "images/Lunettes.jpg",
+      "parfum": ["images/parfums.jpg"],
+      "montre": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bague": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmette": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulard": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorant": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunette": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
       // Pluriel (pour compatibilité avec les produits existants)
-      "parfums": "images/parfums.jpg",
-      "montres": "images/Montre Femmes.webp",
-      "bijoux": "images/Bague.webp",
-      "gourmettes": "images/Gourmette.jpg",
-      "foulards": "images/foulard-soie-boheme.jpg",
-      "deodorants": "images/Déodorant.jpg",
-      "lunettes": "images/Lunettes.jpg",
-      "accessoires": "images/Lunettes.jpg",
-      "vetements": "images/foulard-soie-boheme.jpg",
-      "hygiene": "images/Déodorant.jpg"
+      "parfums": ["images/parfums.jpg"],
+      "montres": ["images/Montre Femmes.webp", "images/Montres Hommes.jpg", "images/Montres pour Femme.jfif", "images/montres-de-luxe-insert-audemars.webp"],
+      "bijoux": ["images/Bague.webp", "images/Bagues.jpg"],
+      "gourmettes": ["images/Gourmette.jpg", "images/Gourmette.webp"],
+      "foulards": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "deodorants": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"],
+      "lunettes": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "accessoires": ["images/Lunettes.jpg", "images/Lunette.jpeg"],
+      "vetements": ["images/foulard-soie-boheme.jpg", "images/foulard.jfif", "images/Foulards.jpg"],
+      "hygiene": ["images/Déodorant.jpg", "images/Deodorants-and-antiperspirant--scaled.jpg"]
     };
 
     const category = product.category || "";
@@ -185,9 +186,27 @@
       }
     }
     
-    // 2. Si aucune image spécifique, utiliser l'image de catégorie par défaut
+    // 2. Si aucune image spécifique, utiliser une image de catégorie différente selon l'ID du produit
+    // Cela évite le dédoublement d'images pour les produits de la même catégorie
     if (category && categoryImageMap[category]) {
-      return categoryImageMap[category];
+      const availableImages = categoryImageMap[category];
+      
+      // Si plusieurs images sont disponibles pour cette catégorie, en choisir une selon l'ID
+      if (availableImages.length > 1 && product.id) {
+        // Créer un hash simple à partir de l'ID pour sélectionner une image
+        let hash = 0;
+        const productId = String(product.id);
+        for (let i = 0; i < productId.length; i++) {
+          hash = ((hash << 5) - hash) + productId.charCodeAt(i);
+          hash = hash & hash; // Convertir en entier 32 bits
+        }
+        // Utiliser le hash pour sélectionner une image différente pour chaque produit
+        const imageIndex = Math.abs(hash) % availableImages.length;
+        return availableImages[imageIndex];
+      }
+      
+      // Si une seule image disponible ou pas d'ID, utiliser la première image
+      return Array.isArray(availableImages) ? availableImages[0] : availableImages;
     }
     
     // 3. Image par défaut si aucune catégorie n'est trouvée
@@ -555,7 +574,21 @@
 
         const message = encodeURIComponent(lines.join("\n"));
         const url = "https://wa.me/" + phoneDigits + "?text=" + message;
-        window.open(url, "_blank");
+        
+        // Utiliser la fonction globale openWhatsApp si disponible, sinon fallback
+        if (window.openWhatsApp) {
+          const opened = window.openWhatsApp(url);
+          if (!opened) {
+            window.alert("Impossible d'ouvrir WhatsApp automatiquement. Veuillez copier ce lien : " + url);
+          }
+        } else {
+          // Fallback si la fonction globale n'est pas disponible
+          try {
+            window.location.href = url;
+          } catch (e) {
+            window.alert("Impossible d'ouvrir WhatsApp automatiquement. Veuillez copier ce lien : " + url);
+          }
+        }
       }
     });
 

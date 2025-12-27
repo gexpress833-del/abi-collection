@@ -22,8 +22,8 @@
           </div>
         </a>
         <div class="flex items-center gap-3 text-xs sm:text-sm">
-          <a href="products.html" class="text-primary">Boutique</a>
-          <a href="account.html" class="hover:text-primary transition-colors hidden sm:inline">Mon compte</a>
+          <a href="products.html" class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-primary hover:bg-white/10 transition-colors">Boutique</a>
+          <a href="account.html" class="px-3 py-1.5 rounded-full hover:bg-white/5 hover:border hover:border-white/10 transition-colors hidden sm:inline-flex">Mon compte</a>
           <a
             href="cart.html"
             class="relative inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
@@ -38,7 +38,7 @@
             Se connecter
           </a>
           <button id="nav-user-chip" class="hidden items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors">
-            <span class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
+            <span id="nav-user-initial" class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/70 to-gold/70 flex items-center justify-center text-[11px] font-semibold text-dark">A</span>
             <span id="nav-user-name" class="max-w-[90px] truncate"></span>
           </button>
         </div>
@@ -49,9 +49,9 @@
       <header class="mb-6 space-y-4">
         <div class="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 class="text-xl sm:text-2xl font-semibold mb-1">Boutique Abi-Collection</h1>
+            <h1 class="text-xl sm:text-2xl font-semibold mb-1">🛍️ Boutique Abi-Collection</h1>
             <p class="text-xs text-white/60">
-              Parfums, lunettes, montres, bagues, gourmettes, foulards et déodorants dans une harmonie futuriste.
+              Découvrez notre sélection de produits. Utilisez les filtres ci-dessous pour trouver ce que vous cherchez.
             </p>
           </div>
         </div>
@@ -103,6 +103,11 @@
       <div id="products-count" class="text-xs text-white/60 mb-4"></div>
       <section id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs"></section>
     </main>
+
+    <footer class="border-t border-white/10 mt-10 py-6 text-center text-[11px] text-white/50">
+      <p>Abi-Collection, Kolwezi • RDC</p>
+      <p class="mt-1">Votre élégance, révélée.</p>
+    </footer>
 
     <script src="supabase-config.js"></script>
     <script src="supabase-integration.js"></script>

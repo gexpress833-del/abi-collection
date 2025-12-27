@@ -121,4 +121,43 @@ a.bg-primary:hover {
   box-shadow: 0 0 15px rgba(201, 169, 97, 0.3);
 }
 
+/* Animation de rotation autour du logo */
+.logo-rotating-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px;
+  height: 160px;
+  border: 3px solid transparent;
+  border-top-color: #C9A961;
+  border-right-color: #B8860B;
+  border-radius: 50%;
+  animation: rotate-ring 3s linear infinite;
+  z-index: 5;
+}
+
+@media (min-width: 640px) {
+  .logo-rotating-ring {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (min-width: 768px) {
+  .logo-rotating-ring {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+@keyframes rotate-ring {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 
